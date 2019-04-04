@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 let scratch =  require("../index.js");
 require("dotenv").config({
@@ -13,7 +14,7 @@ let Client = new scratch.Client({
 (async _ => {
   await Client.login();
 
-  Client.session.authorized.user.getProjects().then(projects => {
-    console.log(projects);
-  });
+  let project = await Client.getProject(299899708);
+
+  project.
 })();

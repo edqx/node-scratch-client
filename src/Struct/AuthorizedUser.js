@@ -4,7 +4,7 @@ const Project = require("./Project.js");
 
 class AuthorizedUser extends User {
   constructor(Client, raw) {
-    super(raw);
+    super(Client, raw);
 
     this._client = Client;
 
@@ -22,7 +22,8 @@ class AuthorizedUser extends User {
         hostname: "api.scratch.mit.edu",
         path: "/users/" + _this.username + "/following/studios/projects?x-token=" + _this.accessToken,
         method: "GET",
-        sessionid: _this._client.session.sessionid
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
       }).then(response => {
         resolve(JSON.parse(response.body).map(project => {
           return new Project(project);
@@ -39,7 +40,8 @@ class AuthorizedUser extends User {
         hostname: "api.scratch.mit.edu",
         path: "/users/" + _this.username + "/following/users/loves?x-token=" + _this.accessToken,
         method: "GET",
-        sessionid: _this._client.session.sessionid
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
       }).then(response => {
         resolve(JSON.parse(response.body).map(project => {
           return new Project(project);
@@ -56,7 +58,8 @@ class AuthorizedUser extends User {
         hostname: "api.scratch.mit.edu",
         path: "/users/" + _this.username + "/following/users/projects?x-token=" + _this.accessToken,
         method: "GET",
-        sessionid: _this._client.session.sessionid
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
       }).then(response => {
         resolve(JSON.parse(response.body).map(project => {
           return new Project(project);

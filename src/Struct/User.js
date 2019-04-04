@@ -2,21 +2,33 @@ const request = require("../request.js");
 
 const Project = require("./Project.js");
 const Studio = require("./Studio.js");
+const Image = require("./Image.js");
 
 class User {
-  constructor(raw) {
+  constructor(Client, raw) {
+    this._client = Client;
+
     this.id = raw.id;
     this.username = raw.username;
 
     this.joinedTimestamp = raw.history.joined;
     this.loginTimestamp = raw.history.login;
 
+    let avatar = new Image(Client, raw.profile.images["90x90"]);
+
     this.profile = {
+      avatars: {},
       id: raw.profile.id,
       avatar: raw.profile.avatar,
       status: raw.profile.status,
-      bio: raw.profile.bio
+      bio: raw.profile.bio,
+      country: raw.profile.country
     }
+
+    for (let image in raw.profile.images) {
+      this.profile.avatars[image] = new Image(Client, raw.profile.images[image]);
+    }
+    this.profile.avatar = new Image(Client, raw.profile.images["90x90"]);
   }
 
   getProjects(opt = {}) {
@@ -26,25 +38,22 @@ class User {
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
         (function loop(rCount) {
-          let diff = _this.remixCount - rCount;
-          let query = "limit=" + (diff > 20 ? 20 : diff) + "&offset=" + (rCount);
+          let query = "limit=40&offset=" + rCount;
 
           request({
             hostname: "api.scratch.mit.edu",
             path: "/users/" + _this.username + "/projects/?" + query,
-            method: "GET"
+            method: "GET",
+            csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            JSON.parse(response.body).forEach((project, i) => {
-              let diff = _this.remixCount - rCount;
-              if (i >= (diff > 20 ? 20 : diff)) return;
+            let json = JSON.parse(response.body);
 
-              all.push(new Project(project));
+            JSON.parse(response.body).forEach(project => {
+              all.push(new Project(_this._client, project));
             });
 
-            let diff = _this.remixCount - rCount;
-            rCount += (diff > 20 ? 20 : diff);
-            if (rCount <= _this.remixCount && diff) {
-              loop(rCount);
+            if (json.length === 40) {
+              loop(rCount + 40);
             } else {
               resolve(all);
             }
@@ -58,10 +67,11 @@ class User {
         request({
           hostname: "api.scratch.mit.edu",
           path: "/users/" + _this.username + "/projects/?" + query,
-          method: "GET"
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
         }).then(response => {
           resolve(JSON.parse(response.body).map(project => {
-            return new Project(project);
+            return new Project(_this._client, project);
           }));
         }).catch(reject);
       });
@@ -76,9 +86,10 @@ class User {
       request({
         hostname: "api.scratch.mit.edu",
         path: "/users/" + _this.username + "/projects/" + id,
-        method: "GET"
+        method: "GET",
+        csrftoken: _this._client.session.csrftoken
       }).then(response => {
-        resolve(new Project(JSON.parse(response.body)));
+        resolve(new Project(_this._client, JSON.parse(response.body)));
       }).catch(reject);
     });
   }
@@ -90,25 +101,22 @@ class User {
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
         (function loop(rCount) {
-          let diff = _this.remixCount - rCount;
-          let query = "limit=" + (diff > 20 ? 20 : diff) + "&offset=" + (rCount);
+          let query = "limit=40&offset=" + rCount;
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/studios/curate",
-            method: "GET"
+            path: "/users/" + _this.username + "/projects/?" + query,
+            method: "GET",
+            csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            JSON.parse(response.body).forEach((studio, i) => {
-              let diff = _this.remixCount - rCount;
-              if (i >= (diff > 20 ? 20 : diff)) return;
+            let json = JSON.parse(response.body);
 
-              all.push(new Studio(studio));
+            JSON.parse(response.body).forEach(studio => {
+              all.push(new Studio(_this._client, studio));
             });
 
-            let diff = _this.remixCount - rCount;
-            rCount += (diff > 20 ? 20 : diff);
-            if (rCount <= _this.remixCount && diff) {
-              loop(rCount);
+            if (json.length === 40) {
+              loop(rCount + 40);
             } else {
               resolve(all);
             }
@@ -122,10 +130,11 @@ class User {
         request({
           hostname: "api.scratch.mit.edu",
           path: "/users/" + _this.username + "/studios/curate?" + query,
-          method: "GET"
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
         }).then(response => {
           resolve(JSON.parse(response.body).map(studio => {
-            return new Studio(studio);
+            return new Studio(_this._client, studio);
           }));
         }).catch(reject);
       });
@@ -139,25 +148,22 @@ class User {
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
         (function loop(rCount) {
-          let diff = _this.remixCount - rCount;
-          let query = "limit=" + (diff > 20 ? 20 : diff) + "&offset=" + (rCount);
+          let query = "limit=40&offset=" + rCount;
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/favorites?" + query,
-            method: "GET"
+            path: "/users/" + _this.username + "/projects/?" + query,
+            method: "GET",
+            csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            JSON.parse(response.body).forEach((project, i) => {
-              let diff = _this.remixCount - rCount;
-              if (i >= (diff > 20 ? 20 : diff)) return;
+            let json = JSON.parse(response.body);
 
-              all.push(new Project(project));
+            JSON.parse(response.body).forEach(project => {
+              all.push(new Project(_this._client, project));
             });
 
-            let diff = _this.remixCount - rCount;
-            rCount += (diff > 20 ? 20 : diff);
-            if (rCount <= _this.remixCount && diff) {
-              loop(rCount);
+            if (json.length === 40) {
+              loop(rCount + 40);
             } else {
               resolve(all);
             }
@@ -171,10 +177,11 @@ class User {
         request({
           hostname: "api.scratch.mit.edu",
           path: "/users/" + _this.username + "/favorites?" + query,
-          method: "GET"
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
         }).then(response => {
           resolve(JSON.parse(response.body).map(project => {
-            return new Project(project);
+            return new Project(_this._client, project);
           }));
         }).catch(reject);
       });
@@ -188,25 +195,22 @@ class User {
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
         (function loop(rCount) {
-          let diff = _this.remixCount - rCount;
-          let query = "limit=" + (diff > 20 ? 20 : diff) + "&offset=" + (rCount);
+          let query = "limit=40&offset=" + rCount;
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/followers?" + query,
-            method: "GET"
+            path: "/users/" + _this.username + "/projects/?" + query,
+            method: "GET",
+            csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            JSON.parse(response.body).forEach((user, i) => {
-              let diff = _this.remixCount - rCount;
-              if (i >= (diff > 20 ? 20 : diff)) return;
+            let json = JSON.parse(response.body);
 
-              all.push(new User(user));
+            JSON.parse(response.body).forEach(user => {
+              all.push(new User(_this._client, user));
             });
 
-            let diff = _this.remixCount - rCount;
-            rCount += (diff > 20 ? 20 : diff);
-            if (rCount <= _this.remixCount && diff) {
-              loop(rCount);
+            if (json.length === 40) {
+              loop(rCount + 40);
             } else {
               resolve(all);
             }
@@ -220,11 +224,11 @@ class User {
         request({
           hostname: "api.scratch.mit.edu",
           path: "/users/" + _this.username + "/followers?" + query,
-          method: "GET"
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
         }).then(response => {
           resolve(JSON.parse(response.body).map(user => {
-            console.log(user);
-            return new User(user);
+            return new User(_this._client, user);
           }));
         }).catch(reject);
       });
@@ -238,25 +242,22 @@ class User {
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
         (function loop(rCount) {
-          let diff = _this.remixCount - rCount;
-          let query = "limit=" + (diff > 20 ? 20 : diff) + "&offset=" + (rCount);
+          let query = "limit=40&offset=" + rCount;
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/following?" + query,
-            method: "GET"
+            path: "/users/" + _this.username + "/following/?" + query,
+            method: "GET",
+            csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            JSON.parse(response.body).forEach((user, i) => {
-              let diff = _this.remixCount - rCount;
-              if (i >= (diff > 20 ? 20 : diff)) return;
+            let json = JSON.parse(response.body);
 
-              all.push(new User(user));
+            JSON.parse(response.body).forEach(user => {
+              all.push(new User(_this._client, user));
             });
 
-            let diff = _this.remixCount - rCount;
-            rCount += (diff > 20 ? 20 : diff);
-            if (rCount <= _this.remixCount && diff) {
-              loop(rCount);
+            if (json.length === 40) {
+              loop(rCount + 40);
             } else {
               resolve(all);
             }
@@ -270,28 +271,40 @@ class User {
         request({
           hostname: "api.scratch.mit.edu",
           path: "/users/" + _this.username + "/following?" + query,
-          method: "GET"
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
         }).then(response => {
           resolve(JSON.parse(response.body).map(user => {
-            console.log(user);
-            return new User(user);
+            return new User(_this._client, user);
           }));
         }).catch(reject);
       });
     }
   }
 
-  getMessageCount() {
+  getMessageCount(useOld) {
     let _this = this;
 
     return new Promise((resolve, reject) => {
-      request({
-        hostname: "api.scratch.mit.edu",
-        path: "/users/" + _this.username + "/messages/count",
-        method: "GET"
-      }).then(response => {
-        resolve(JSON.parse(response.body).count);
-      }).catch(reject);
+      if (!useOld) {
+        request({
+          hostname: "api.scratch.mit.edu",
+          path: "/users/" + _this.username + "/messages/count",
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
+        }).then(response => {
+          resolve(JSON.parse(response.body).count);
+        }).catch(reject);
+      } else {
+        request({
+          hostname: "api.scratch.mit.edu",
+          path: "/proxy/users/" + _this.username + "/activity/count",
+          method: "GET",
+          csrftoken: _this._client.session.csrftoken
+        }).then(response => {
+          resolve(JSON.parse(response.body).msg_count);
+        }).catch(reject);
+      }
     });
   }
 }

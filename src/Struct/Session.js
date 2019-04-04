@@ -13,6 +13,7 @@ class Session {
     this.username = basic.username || null;
     this.id = basic.id || null;
     this.sessionid = basic.sessionid || null;
+    this.csrftoken = basic.csrftoken;
 
     this.authorized = basic.authorized || null;
 
@@ -36,7 +37,8 @@ class Session {
       request({
         path: "/internalapi/backpack/" + _this.username + "/get/",
         method: "GET",
-        sessionid: _this.sessionid
+        sessionid: _this.sessionid,
+        csrftoken: _this._client.session.csrftoken
       }, {
         "X-Requested-With": "XMLHttpRequest"
       }).then(data => {
@@ -61,7 +63,8 @@ class Session {
         path:  "/internalapi/backpack/" + _this.username + "/set/",
         method: "POST",
         body: body,
-        sessionid: _this.sessionid
+        sessionid: _this.sessionid,
+        csrftoken: _this._client.session.csrftoken
       }, {}).then(response => {
         resolve(JSON.parse(response.body));
       }).catch(reject);
@@ -80,7 +83,8 @@ class Session {
         path: "/accounts/logout/",
         method: "POST",
         sessionid: _this.sessionid,
-        body: body
+        body: body,
+        csrftoken: _this._client.session.csrftoken
       }, {
         "X-Requested-With": "XMLHttpRequest"
       }).then(data => {

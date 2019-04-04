@@ -1,5 +1,9 @@
+const Image = require("./Image.js");
+
 class IncompleteUser {
-  constructor(raw) {
+  constructor(Client, raw) {
+    this._client = Client;
+
     this.id = raw.id;
     this.scratchteam = raw.scratchteam;
 

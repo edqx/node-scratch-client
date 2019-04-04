@@ -1,10 +1,14 @@
+const Image = require("./Image.js");
+
 class Studio {
-  constructor(raw) {
+  constructor(Client, raw) {
+    this._client = Client;
+
     this.id = raw.id;
     this.title = raw.title;
     this.owner = raw.owner;
     this.description = raw.description;
-    this.image = raw.image;
+    this.image = new Image(raw.image);
 
     this.createdTimestamp = raw.history.created;
     this.lsatModifiedTimestamp = raw.history.modified;

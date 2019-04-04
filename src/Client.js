@@ -36,7 +36,7 @@ class Client {
         const body = response.body;
 
         let json = JSON.parse(body)[0];
-        
+
         _this.session.authorized = new SessionFlags(_this, JSON.parse(body));
 
         _this.session.authorized.on("ready", function () {
@@ -46,7 +46,7 @@ class Client {
     });
   }
 
-  login(options = {}) {
+  login() {
     let _this = this;
 
     return new Promise((resolve, reject) => {

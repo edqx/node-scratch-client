@@ -11,8 +11,8 @@ class Project {
     this.instructions = raw.instructions;
     this.visible = raw.visibility === "visible";
     this.public = raw.public;
-    this.comments_allowed = raw.comments_allowed;
-    this.is_published = raw.is_published;
+    this.commentsAllowed = raw.comments_allowed;
+    this.isPublished = raw.is_published;
     this.author = new IncompleteUser(raw.author);
 
     this.createdTimestamp = raw.history.created;

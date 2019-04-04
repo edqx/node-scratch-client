@@ -7,7 +7,7 @@ class Studio {
     this.image = raw.image;
 
     this.createdTimestamp = raw.history.created;
-    this.modifiedTimestamp = raw.history.modified;
+    this.lsatModifiedTimestamp = raw.history.modified;
 
     this.followerCount = raw.stats.followers;
   }

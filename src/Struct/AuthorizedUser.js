@@ -14,7 +14,7 @@ class AuthorizedUser extends User {
     this.email = raw.email;
   }
 
-  getFollowingRecentStudioProjects(opt = {}) {
+  getFollowingRecentStudioProjects() {
     let _this = this;
 
     return new Promise((resolve, reject) => {
@@ -29,10 +29,6 @@ class AuthorizedUser extends User {
         }));
       }).catch(reject);
     });
-  }
-
-  getFollowingStudioActivity(opt = {}) {
-    return this.getFollowingRecentStudioProjects(opt);
   }
 
   getFollowingUserLoves(opt = {}) {

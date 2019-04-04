@@ -1,6 +1,6 @@
 {
   "name": "node-scratch-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A nodejs client to interact with the scratch website.",
   "main": "index.js",
   "directories": {
@@ -15,5 +15,14 @@
     "cookie": "^0.3.1",
     "dotenv": "^7.0.0",
     "ws": "^6.2.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mytopdog/node-scratch-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mytopdog/node-scratch-client/issues"
+  },
+  "homepage": "https://github.com/mytopdog/node-scratch-client#readme"
 }

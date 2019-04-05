@@ -4,6 +4,7 @@ class IncompleteUser {
   constructor(Client, raw) {
     this._client = Client;
 
+    this.username = raw.username;
     this.id = raw.id;
     this.scratchteam = raw.scratchteam;
 
@@ -11,7 +12,11 @@ class IncompleteUser {
 
     this.profile = {
       id: raw.profile.id,
-      images: raw.profile.images
+      images: {}
+    }
+
+    for (let src in raw.profile.images) {
+      this.profile.images[src] = new Image(raw.profile.images[src]);
     }
   }
 }

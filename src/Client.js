@@ -23,7 +23,7 @@ class Client {
     this.session = null;
   }
 
-  fetchcsrf() {
+  _fetchcsrf() {
     let _this = this;
 
     return new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ class Client {
     });
   }
 
-  fetchSession() {
+  _fetchSession() {
     let _this = this;
 
     return new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ class Client {
         password: _this.auth.password
       });
 
-      _this.fetchcsrf().then(csrf => {
+      _this._fetchcsrf().then(csrf => {
         request({
           path: "/login/",
           method: "POST",
@@ -103,7 +103,7 @@ class Client {
             username: _this.auth.username
           });
 
-          _this.fetchSession().then(function () {
+          _this._fetchSession().then(function () {
             _this._debugLog("Logged in. " + json.method);
 
             resolve(_this.session);
@@ -168,7 +168,7 @@ class Client {
     });
   }
 
-  exploreProjects(tags, mode) {
+  exploreProjects(tags, mode) { // under construction
     let _this = this;
     let query = [];
     if (tags) {
@@ -196,7 +196,7 @@ class Client {
     });
   }
 
-  exploreStudios(tags, mode) {
+  exploreStudios(tags, mode) { // under construction
     let _this = this;
     let query = [];
     if (tags) {
@@ -224,11 +224,11 @@ class Client {
     });
   }
 
-  searchProjects(tags, mode) {
+  searchProjects(search, mode) {
     let _this = this;
     let query = [];
-    if (tags) {
-      query.push(tags);
+    if (search) {
+      query.push(search);
     }
     if (mode) {
       query.push(mode);
@@ -252,11 +252,11 @@ class Client {
     });
   }
 
-  searchStudios(tags, mode) {
+  searchStudios(search, mode) {
     let _this = this;
     let query = [];
-    if (tags) {
-      query.push(tags);
+    if (search) {
+      query.push(search);
     }
     if (mode) {
       query.push(mode);

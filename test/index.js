@@ -16,21 +16,7 @@ let Client = new scratch.Client({
 (async _ => {
   await Client.login();
 
-  let user = await Client.getUser("Divinium");
-
-  user.postComment("ok");
-
-  request({
-    path: "/site-api/comments/user/Divinium/",
-    method: "GET",
-    sessionid: Client.session.sessionid,
-    csrftoken: Client.session.csrftoken
-  }, {
-    accept: "application/json",
-    "Content-Type": "application/json",
-    origin: "https://scratch.mit.edu",
-    "X-Token": Client.session.authorized.user.accessToken
-  }).then(response => {
-    console.log(response.body);
-  }).catch(console.log);
+  Client.getNews().then(news => {
+    console.log("The latest scratch news: " + news[0].title + "\n" + news[0].description);
+  });
 })();

@@ -16,7 +16,7 @@ let Client = new scratch.Client({
 (async _ => {
   await Client.login();
 
-  Client.getNews().then(news => {
-    console.log("The latest scratch news: " + news[0].title + "\n" + news[0].description);
+  Client.getProjectCount().then(count => {
+    console.log("There are currently " + count + " projects on scratch");
   });
 })();

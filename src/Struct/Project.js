@@ -58,8 +58,6 @@ class Project {
         "X-Requested-With": "XMLHttpRequest",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
-        console.log(response.body);
-
         resolve(JSON.parse(response.body).userLove);
       }).catch(reject);
     });

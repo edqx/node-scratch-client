@@ -3,7 +3,10 @@ const request = require("../request.js");
 const IncompleteUser = require("./IncompleteUser.js");
 const Studio = require("./Studio.js");
 const Image = require("./Image.js");
-const Comment = require("./Comment.js");
+const ProjectComment = require("./ProjectComment.js");
+const ScratchImageAsset = require("./ScratchImageAsset.js");
+const ScratchSoundAsset = require("./ScratchSoundAsset.js");
+const ScratchAsset = require("./ScratchAsset.js");
 
 class Project {
   constructor (Client, raw) {
@@ -41,13 +44,91 @@ class Project {
     this.isRemix = !!raw.remix.parents;
   }
 
+  love() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/projects/" + _this.id + "/loves/user/" + _this._client.session.username,
+        method: "POST",
+        sessionid:  _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        console.log(response.body);
+
+        resolve(JSON.parse(response.body).userLove);
+      }).catch(reject);
+    });
+  }
+
+  unlove() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/projects/" + _this.id + "/loves/user/" + _this._client.session.username,
+        method: "DELETE",
+        sessionid:  _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve(JSON.parse(response.body).userLove);
+      }).catch(reject);
+    });
+  }
+
+  favorite() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/projects/" + _this.id + "/favorites/user/" + _this._client.session.username,
+        method: "POST",
+        sessionid:  _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve(JSON.parse(response.body).userFavorite);
+      }).catch(reject);
+    });
+  }
+
+  unfavorite() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/projects/" + _this.id + "/favorites/user/" + _this._client.session.username,
+        method: "DELETE",
+        sessionid:  _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve(JSON.parse(response.body).userFavorite);
+      }).catch(reject);
+    });
+  }
+
   getScripts() {
     let _this = this;
 
     return new Promise((resolve, reject) => {
       request({
         hostname: "projects.scratch.mit.edu",
-        path: "/" + _this.id,
+        path: "/" + _this.id + "/",
         method: "GET",
         csrftoken: _this._client.session.csrftoken
       }).then(response => {
@@ -150,7 +231,7 @@ class Project {
     }
   }
 
-  postComment(content) {
+  postComment(content, parent) {
     let _this = this;
 
     return new Promise((resolve, reject) => {
@@ -161,7 +242,7 @@ class Project {
         body: JSON.stringify({
           commentee_id: "",
           content: content,
-          parent_id: ""
+          parent_id: parent || ""
         }),
         sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
@@ -177,7 +258,7 @@ class Project {
     });
   }
 
-  getComments(opt) {
+  getComments(opt = {}) {
     let _this = this;
     let all = [];
 
@@ -216,8 +297,8 @@ class Project {
           method: "GET",
           csrftoken: _this._client.session.csrftoken
         }).then(response => {
-          resolve(JSON.parse(response.body).map(project => {
-            return new Studio(project);
+          resolve(JSON.parse(response.body).map(comment => {
+            return new ProjectComment(comment);
           }));
         }).catch(reject);
       });
@@ -244,6 +325,8 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
+        _this.commentsAllowed = false;
+
         resolve(new Project(_this._client, JSON.parse(response.body)));
       }).catch(reject);
     });
@@ -269,6 +352,8 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
+        _this.commentsAllowed = true;
+
         resolve(new Project(_this._client, JSON.parse(response.body)));
       }).catch(reject);
     });
@@ -294,6 +379,8 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
+        _this.commentsAllowed = !_this.commentsAllowed;
+
         resolve(new Project(_this._client, JSON.parse(response.body)));
       }).catch(reject);
     });
@@ -322,6 +409,27 @@ class Project {
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
         resolve(response.body);
+      }).catch(reject);
+    });
+  }
+
+  getAllAssets() {
+    let _this = this;
+    let all = [];
+
+    return new Promise((resolve, reject) => {
+      this.getScripts().then(scripts => {
+        scripts.targets.forEach(sprite => {
+          sprite.costumes.forEach(costume => {
+            all.push(new ScratchImageAsset(_this._client, costume));
+          });
+
+          sprite.sounds.forEach(costume => {
+            all.push(new ScratchSoundAsset(_this._client, costume));
+          });
+
+          resolve(all);
+        })
       }).catch(reject);
     });
   }

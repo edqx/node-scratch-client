@@ -307,6 +307,34 @@ class User {
       }
     });
   }
+
+  /* OLD SITE-API */
+
+  postComment(content, parent) {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        path: "/site-api/comments/user/" + _this.username + "/add/",
+        method: "POST",
+        body: JSON.stringify({
+          commentee_id: "",
+          content: content,
+          parent_id: parent || ""
+        }),
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/users/" + _this.username + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve(response.body);
+      }).catch(reject);
+    });
+  }
 }
 
 module.exports = User;

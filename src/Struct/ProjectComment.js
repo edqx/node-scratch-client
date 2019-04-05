@@ -2,7 +2,7 @@ const request = require("../request.js");
 
 const CommentAuthor = require("./CommentAuthor.js");
 
-class Comment {
+class ProjectComment {
   constructor(Client, project, raw) {
     let id = project.id || project;
 
@@ -10,7 +10,7 @@ class Comment {
 
     this.id = raw.id;
     this.parentid = raw.parent_id;
-    this.commenteeid = raw.commenteeid;
+    this.commenteeid = raw.commentee_id;
     this.content = raw.content;
     this.replyCount = raw.reply_count;
     this.projectid = id;
@@ -45,7 +45,7 @@ class Comment {
 
   report() {
     let _this = this;
-    
+
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",
@@ -62,6 +62,33 @@ class Comment {
       }).catch(reject);
     });
   }
+
+  reply(content) {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/comments/project/" + _this.projectid + "/",
+        method: "POST",
+        body: JSON.stringify({
+          commentee_id: _this.author.id,
+          content: content,
+          parent_id: _this.id
+        }),
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve(response.body);
+      }).catch(reject);
+    });
+  }
 }
 
-module.exports = Comment;
+module.exports = ProjectComment;

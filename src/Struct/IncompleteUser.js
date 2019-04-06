@@ -10,13 +10,16 @@ class IncompleteUser {
 
     this.joinedTimestamp = raw.history.joined;
 
+    let avatar = new Image(Client, raw.profile.images["90x90"]);
+
     this.profile = {
       id: raw.profile.id,
-      images: {}
+      avatar: avatar,
+      avatars: {}
     }
 
     for (let src in raw.profile.images) {
-      this.profile.images[src] = new Image(raw.profile.images[src]);
+      this.profile.avatars[src] = new Image(raw.profile.images[src]);
     }
   }
 }

@@ -20,7 +20,7 @@ class Client {
 
     this.debug = debug || null;
 
-    this.session = null;
+    this.session = {};
   }
 
   _fetchcsrf() {
@@ -139,7 +139,7 @@ class Client {
 
   getProjectCount() {
     let _this = this;
-    
+
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",

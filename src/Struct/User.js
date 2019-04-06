@@ -19,7 +19,7 @@ class User {
     this.profile = {
       avatars: {},
       id: raw.profile.id,
-      avatar: raw.profile.avatar,
+      avatar: null,
       status: raw.profile.status,
       bio: raw.profile.bio,
       country: raw.profile.country

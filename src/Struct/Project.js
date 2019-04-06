@@ -251,7 +251,7 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
-        resolve(response.body);
+        resolve();
       }).catch(reject);
     });
   }

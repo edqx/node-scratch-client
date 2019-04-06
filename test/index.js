@@ -16,7 +16,9 @@ let Client = new scratch.Client({
 (async _ => {
   await Client.login();
 
-  Client.getProjectCount().then(count => {
-    console.log("There are currently " + count + " projects on scratch");
+  Client.getProject(299899708).then(project => {
+    setInterval(function () {
+      project.postComment("What");
+    }, 3500);
   });
 })();

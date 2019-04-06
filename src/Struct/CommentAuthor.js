@@ -7,7 +7,7 @@ class CommentAuthor {
     this.id = raw.id;
     this.username = raw.username;
     this.scratchteam = raw.scratchteam;
-    this.image = new Image(Client, raw.image);
+    this.avatar = new Image(Client, raw.image);
   }
 }
 

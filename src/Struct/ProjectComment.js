@@ -4,8 +4,6 @@ const CommentAuthor = require("./CommentAuthor.js");
 
 class ProjectComment {
   constructor(Client, project, raw) {
-    let id = project.id || project;
-
     this._client = Client;
 
     this.id = raw.id;
@@ -13,7 +11,7 @@ class ProjectComment {
     this.commenteeid = raw.commentee_id;
     this.content = raw.content;
     this.replyCount = raw.reply_count;
-    this.projectid = id;
+    this.project = project;
 
     this.createdTimestamp = raw.datetime_created;
     this.lastModifiedTiemstamp = raw.datetime_modified;
@@ -29,7 +27,7 @@ class ProjectComment {
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",
-        path: "/proxy/comments/project/" + _this.projectid + "/comment/" + _this.id,
+        path: "/proxy/comments/project/" + _this.project.id + "/comment/" + _this.id,
         method: "DELETE",
         sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
@@ -49,7 +47,7 @@ class ProjectComment {
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",
-        path: "/proxy/comments/project/" + _this.projectid + "/comment/" + _this.id + "/report",
+        path: "/proxy/comments/project/" + _this.project.id + "/comment/" + _this.id + "/report",
         method: "POST",
         sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
@@ -69,7 +67,7 @@ class ProjectComment {
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",
-        path: "/proxy/comments/project/" + _this.projectid + "/",
+        path: "/proxy/comments/project/" + _this.project.id + "/",
         method: "POST",
         body: JSON.stringify({
           commentee_id: _this.author.id,

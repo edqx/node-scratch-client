@@ -15,6 +15,4 @@ let Client = new scratch.Client({
 
 (async _ => {
   await Client.login();
-
-  console.log(await (await Client.getUser("griffpatch")).getMessageCount())
 })();

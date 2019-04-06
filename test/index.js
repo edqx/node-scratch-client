@@ -16,9 +16,6 @@ let Client = new scratch.Client({
 (async _ => {
   await Client.login();
 
-  Client.getProject(299899708).then(project => {
-    setInterval(function () {
-      project.postComment("What");
-    }, 3500);
-  });
+  let Tropic = await Client.getUser("Tropic");
+  console.log(await Tropic.getMessageCount());
 })();

@@ -34,6 +34,8 @@ class SessionFlags extends EventEmitter {
     this.permissions = {};
     this.flags = {};
 
+    Client.session.permission = JSON.stringify(raw.permissions);
+
     for (let perm in raw.permissions) {
       this.permissions[perm] = new Permission(Client, perm, raw.permissions[perm]);
     }

@@ -1,4 +1,5 @@
 const request = require("../request.js");
+const fs = require("fs");
 
 const IncompleteUser = require("./IncompleteUser.js");
 const Studio = require("./Studio.js");
@@ -221,8 +222,8 @@ class Project {
           method: "GET",
           csrftoken: _this._client.session.csrftoken
         }).then(response => {
-          resolve(JSON.parse(response.body).map(project => {
-            return new Studio(project);
+          resolve(JSON.parse(response.body).map(studio => {
+            return new Studio(_this._client, studio);
           }));
         }).catch(reject);
       });
@@ -432,18 +433,14 @@ class Project {
     });
   }
 
-  /*
   unshare() {
     let _this = this;
 
     return new Promise((resolve, reject) => {
       request({
-        hostname: "scratch.mit.edu",
-        path: "/site-api/projects/all/" + _this.id + "/",
+        hostname: "api.scratch.mit.edu",
+        path: "/proxy/projects/" + _this.id + "/unshare/",
         method: "PUT",
-        body: JSON.stringify({
-          is_published: false
-        }),
         sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
       }, {
@@ -453,7 +450,7 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
-        resolve(JSON.parse(response.body));
+        resolve();
       }).catch(reject);
     });
   }
@@ -464,11 +461,8 @@ class Project {
     return new Promise((resolve, reject) => {
       request({
         hostname: "api.scratch.mit.edu",
-        path: "/projects/" + _this.id + "/",
+        path: "/proxy/projects/" + _this.id + "/share/",
         method: "PUT",
-        body: JSON.stringify({
-          is_published: true
-        }),
         sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
       }, {
@@ -478,11 +472,57 @@ class Project {
         referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
-        resolve(JSON.parse(response.body));
+        resolve();
       }).catch(reject);
     });
   }
-  */
+
+  setThumbnail(file) {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "scratch.mit.edu",
+        path: "/internalapi/project/thumbnail/" + _this.id + "/set/",
+        method: "POST",
+        body: fs.readFileSync(file),
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "*/*",
+        "Content-Type": "image/" + file.split(".")[file.split(".").length - 1],
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken,
+        "x-requested-with": "XMLHttpRequest"
+      }).then(response => {
+        resolve();
+      }).catch(reject);
+    });
+  }
+
+  view() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        hostname: "scratch.mit.edu",
+        path: "/users/" + _this.author.username + "/" + _this.id + "/views/",
+        method: "POST",
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "*/*",
+        "Content-Type": "image/" + file.split(".")[file.split(".").length - 1],
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken,
+        "x-requested-with": "XMLHttpRequest"
+      }).then(response => {
+        resolve();
+      }).catch(reject);
+    });
+  }
 }
 
 module.exports = Project;

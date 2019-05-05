@@ -18,6 +18,8 @@ class Session {
     this.authorized = basic.authorized || null;
 
     this.cloudsession = null;
+
+    this.permission = null;
   }
 
   createCloudSession(project) {
@@ -75,21 +77,22 @@ class Session {
     let _this = this;
 
     return new Promise((resolve, reject) => {
-      let body = JSON.stringify({
-        csrfmiddlewaretoken: "a"
-      });
-
       request({
         path: "/accounts/logout/",
         method: "POST",
-        sessionid: _this.sessionid,
-        body: body,
+        body: JSON.stringify({
+          csrfmiddlewaretoken: "a"
+        }),
+        sessionid: _this._client.session.sessionid,
         csrftoken: _this._client.session.csrftoken
       }, {
-        "X-Requested-With": "XMLHttpRequest"
-      }).then(data => {
-        const body = data.body;
-        const response = data.response;
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/projects/" + _this.id + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve();
       }).catch(reject);
     });
   }

@@ -13,6 +13,7 @@ let Client = new scratch.Client({
   password: process.env.SCRATCH_PASSWORD
 });
 
+
 (async _ => {
-  await Client.login();
+  
 })();

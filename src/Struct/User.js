@@ -1,8 +1,9 @@
 const request = require("../request.js");
+const querystring = require("querystring");
 
 const Project = require("./Project.js");
 const Studio = require("./Studio.js");
-const Image = require("./Image.js");
+const UserProfile = require("./UserProfile.js");
 
 class User {
   constructor(Client, raw) {
@@ -14,21 +15,7 @@ class User {
     this.joinedTimestamp = raw.history.joined;
     this.loginTimestamp = raw.history.login;
 
-    let avatar = new Image(Client, raw.profile.images["90x90"]);
-
-    this.profile = {
-      avatars: {},
-      id: raw.profile.id,
-      avatar: null,
-      status: raw.profile.status,
-      bio: raw.profile.bio,
-      country: raw.profile.country
-    }
-
-    for (let image in raw.profile.images) {
-      this.profile.avatars[image] = new Image(Client, raw.profile.images[image]);
-    }
-    this.profile.avatar = new Image(Client, raw.profile.images["90x90"]);
+    this.profile = new UserProfile(Client, this, raw.profile);
   }
 
   getProjects(opt = {}) {
@@ -332,6 +319,108 @@ class User {
         "X-Token": _this._client.session.authorized.user.accessToken
       }).then(response => {
         resolve(response.body);
+      }).catch(reject);
+    });
+  }
+
+  report(field) {
+    let _this = this;
+
+    // Pick from these fields x
+
+    let fields = [{
+      "description": "description",
+      "working_on": "working_on",
+      "icon": "icon",
+      "username": "username",
+      "aboutme": "description",
+      "workingon": "working_on",
+      "avatar": "icon",
+      "name": "username"
+    }];
+
+    return new Promise((resolve, reject) => {
+      request({
+        path: "/site-api/users/all/" + _this.username + "/report/",
+        method: "POST",
+        body: JSON.stringify({
+          selected_field: fields[field]
+        }),
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/users/" + _this.username + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve();
+      }).catch(reject);
+    });
+  }
+
+  toggleCommenting() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        path: "/site-api/comments/user/" + _this.username + "/toggle-comments/",
+        method: "POST",
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/users/" + _this.username + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken
+      }).then(response => {
+        resolve();
+      }).catch(reject);
+    });
+  }
+
+  follow() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        path: "/site-api/users/followers/" + _this.username + "/add/?usernames=" + _this._client.session.username,
+        method: "PUT",
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/users/" + _this.username + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken,
+        "x-requested-with": "XMLHttpRequest"
+      }).then(response => {
+        resolve();
+      }).catch(reject);
+    });
+  }
+
+  unfollow() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      request({
+        path: "/site-api/users/followers/" + _this.username + "/remove/?usernames=" + _this._client.session.username,
+        method: "PUT",
+        sessionid: _this._client.session.sessionid,
+        csrftoken: _this._client.session.csrftoken
+      }, {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        origin: "https://scratch.mit.edu",
+        referer: "https://scratch.mit.edu/users/" + _this.username + "/",
+        "X-Token": _this._client.session.authorized.user.accessToken,
+        "x-requested-with": "XMLHttpRequest"
+      }).then(response => {
+        resolve();
       }).catch(reject);
     });
   }

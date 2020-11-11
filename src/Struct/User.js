@@ -92,7 +92,7 @@ class User {
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/projects/?" + query,
+            path: "/users/" + _this.username + "/studios/curate?" + query,
             method: "GET",
             csrftoken: _this._client.session.csrftoken
           }).then(response => {
@@ -139,7 +139,7 @@ class User {
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/projects/?" + query,
+            path: "/users/" + _this.username + "/favorites?" + query,
             method: "GET",
             csrftoken: _this._client.session.csrftoken
           }).then(response => {
@@ -186,7 +186,7 @@ class User {
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/projects/?" + query,
+            path: "/users/" + _this.username + "/followers/?" + query,
             method: "GET",
             csrftoken: _this._client.session.csrftoken
           }).then(response => {
@@ -233,7 +233,7 @@ class User {
 
           request({
             hostname: "api.scratch.mit.edu",
-            path: "/users/" + _this.username + "/following/?" + query,
+            path: "/users/" + _this.username + "/following?" + query,
             method: "GET",
             csrftoken: _this._client.session.csrftoken
           }).then(response => {

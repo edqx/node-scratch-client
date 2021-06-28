@@ -83,20 +83,27 @@ class CloudSession extends EventEmitter {
         _this.connect();
       });
 
-      connection.on("message", function (chunk) {
-        let json = JSON.parse(chunk);
+      connection.on("message", function (chunks) {
+        let chunksArr = chunks.split("\n");
+        for (let i = 0; i < chunksArr.length; i++) {
+          let chunk = chunksArr[i];
+          if (!chunk) {
+            continue;
+          }
+          let json = JSON.parse(chunk);
 
-        _this._client._debugLog("CloudData: Received message: " + json);
+          _this._client._debugLog("CloudData: Received message: " + json);
 
-        if (json.method === "set") {
-          _this._variables[json.name]  = new CloudVariable(_this._client, {
-            name: json.name,
-            value: json.value
-          });
+          if (json.method === "set") {
+            _this._variables[json.name]  = new CloudVariable(_this._client, {
+              name: json.name,
+              value: json.value
+            });
 
-          _this.emit("set", _this._variables[json.name]);
-        } else {
-          _this._client._debugLog("CloudData: Method not supported: " + json.method);
+            _this.emit("set", _this._variables[json.name]);
+          } else {
+            _this._client._debugLog("CloudData: Method not supported: " + json.method);
+          }
         }
       });
     });

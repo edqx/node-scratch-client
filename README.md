@@ -1,6 +1,6 @@
 # node-scratch-client
 
-This package is a nodejs promise-based client to connect with the Scratch web and cloud servers. This package is based off https://github.com/trumank/scratch-api which the developer has discontinued.
+This fork of [node-scratch-client](https://github.com/edqx/node-scratch-client/) intends to fix a few bugs that can cause errors during its use.
 
 # Installation
 

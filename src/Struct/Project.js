@@ -1,5 +1,6 @@
 const request = require("../request.js");
 const fs = require("fs");
+var parse = require('xml-parser-xo');
 
 const IncompleteUser = require("./IncompleteUser.js");
 const Studio = require("./Studio.js");
@@ -43,6 +44,39 @@ class Project {
     this.parent = raw.remix.parent || null;
     this.root = raw.remix.root || null;
     this.isRemix = !!raw.remix.parents;
+  }
+
+  removeWhitespace(json) {
+    function trimElements(element) {
+      if (element.children) {
+        element.children = element.children.map((child) => {
+          if (child.type === "Element") {
+            trimElements(child);
+          } else if (child.type === "Text") {
+            child.content = child.content.trim();
+          }
+          return child;
+        });
+      }
+    }
+
+    function deleteEmptyElements(element) {
+      if (element.children) {
+        element.children = element.children.filter((child) => {
+          if (child.type === "Element") {
+            deleteEmptyElements(child);
+            return true;
+          } else if (child.type === "Text") {
+            return child.content.length > 0;
+          } else if (child.type === "Comment") {
+            return false;
+          }
+        });
+      }
+    }
+
+    trimElements(json);
+    deleteEmptyElements(json);
   }
 
   love() {
@@ -261,44 +295,89 @@ class Project {
     let _this = this;
     let all = [];
 
+    function parseComments(xml) {
+      let json = parse('<?xml version="1.0" encoding="utf-8"?><all>' + xml + '</all></xml>');
+
+      _this.removeWhitespace(json);
+
+      json.root.children.forEach(child => {
+        if (child.type === "Element" && child.name === "li") {
+          let commentData = {
+            parent_id: null
+          };
+          child.children.forEach(child => {
+            if (child.type === "Element" && child.name === "div") {
+              commentData.id = child.attributes["data-comment-id"];
+              child.children.forEach(child => {
+                if (child.type === "Element" && child.name === "div" && child.attributes.class === "info") {
+                  child.children.forEach(child => {
+                    if (child.type === "Element" && child.name === "div") {
+                      if (child.attributes.class === "name") {
+                      } else if (child.attributes.class === "content") {
+                        commentData.content = child.children[0].content;
+                      } else {
+                        child.children.forEach(child => {
+                          if (child.type === "Element" && child.name === "span") {
+                            commentData.datetime_created = child.attributes.title;
+                            commentData.datetime_modified = child.attributes.title;
+                          }else if (child.type === "Element" && child.name === "a") {
+                            commentData.commentee_id = child.attributes["data-commentee-id"];
+                          }
+                        });
+                      }
+                    }
+                  })
+                }
+              })
+            }
+            if (child.type === "Element" && child.name === "ul") {
+              let replyCount = 0;
+              child.children.forEach(child => {
+                if (child.type === "Element" && child.name === "li") {
+                  replyCount += 1;
+                }
+              });
+              commentData.reply_count = replyCount;
+            }
+          })
+          all.push(new ProjectComment(_this._client, _this, commentData));
+        }
+      });
+    }
+
     if (opt.fetchAll) {
       return new Promise((resolve, reject) => {
-        (function loop(rCount) {
-          let query = "limit=40&offset=" + rCount;
+        (function loop(pageCount) {
+          let query = "page=" + pageCount;
 
           request({
-            hostname: "api.scratch.mit.edu",
-            path: "/projects/" + _this.id + "/comments?" + query,
+            hostname: "scratch.mit.edu",
+            path: "/site-api/comments/project/" + _this.id + "/?" + query,
             method: "GET",
             csrftoken: _this._client.session.csrftoken
           }).then(response => {
-            let json = JSON.parse(response.body);
+            parseComments(response.body);
 
-            JSON.parse(response.body).forEach(comment => {
-              all.push(new Comment(_this._client, _this, comment));
-            });
-
-            if (json.length === 40) {
-              loop(rCount + 40);
+            if (json.root.children.length === 40) {
+              loop(pageCount + 1);
             } else {
               resolve(all);
             }
           }).catch(reject);
-        })(0);
+        })(1);
       });
     } else {
       return new Promise((resolve, reject) => {
-        let query = "limit=" + (opt.limit || 20) + "&offset=" + (opt.offset || 0);
+        let query = "page=" + opt.page;
 
         request({
-          hostname: "api.scratch.mit.edu",
-          path: "/projects/" + _this.id + "/comments/?" + query,
+          hostname: "scratch.mit.edu",
+          path: "/site-api/comments/project/" + _this.id + "/?" + query,
           method: "GET",
           csrftoken: _this._client.session.csrftoken
         }).then(response => {
-          resolve(JSON.parse(response.body).map(comment => {
-            return new ProjectComment(comment);
-          }));
+          parseComments(response.body);
+          resolve(all);
         }).catch(reject);
       });
     }

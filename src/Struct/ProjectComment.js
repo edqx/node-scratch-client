@@ -18,7 +18,7 @@ class ProjectComment {
 
     this.visible = raw.visibility === "visible";
 
-    this.author = new CommentAuthor(Client, raw.author);
+    this.author = project.author;
   }
 
   delete() {

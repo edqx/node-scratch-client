@@ -1,6 +1,6 @@
 # node-scratch-client
 
-This fork of [node-scratch-client](https://github.com/edqx/node-scratch-client/) intends to fix a few bugs that can cause errors during its use.
+The Scratch development team is always changing the Scratch API, and we need to catch up with it. This fork of [node-scratch-client](https://github.com/edqx/node-scratch-client/) intends to keep up-to-date with the latest Scratch API as quickly as possible.
 
 # Installation
 

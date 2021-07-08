@@ -1,6 +1,7 @@
 class CloudVariable {
-  constructor (Client, raw) {
+  constructor (Client, raw, CloudSession) {
     this._client = Client;
+    this._cloudsession = CloudSession;
 
     this.name = raw.name;
     this.value = raw.value;
@@ -9,7 +10,7 @@ class CloudVariable {
   set(value) {
     this.value = value;
 
-    this._client.session.cloudsession._send("set", {
+    this._cloudsession._send("set", {
       name:  this.name,
       value:  this.value
     });

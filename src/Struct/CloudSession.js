@@ -32,7 +32,7 @@ class CloudSession extends EventEmitter {
   }
 
   setVariable(name, value) {
-    this._variables[name].set(value);
+    this._send("set", { name, value });
   }
 
   _send(method,  options) {
@@ -98,7 +98,7 @@ class CloudSession extends EventEmitter {
             _this._variables[json.name]  = new CloudVariable(_this._client, {
               name: json.name,
               value: json.value
-            });
+            }, this);
 
             _this.emit("set", _this._variables[json.name]);
           } else {

@@ -17,15 +17,17 @@ class Session {
 
     this.authorized = basic.authorized || null;
 
-    this.cloudsession = null;
+    this.cloudsessions = [];
 
     this.permission = null;
   }
 
   createCloudSession(project) {
-    this.cloudsession = new CloudSession(this._client, this.username, project);
+    let cloudsession = new CloudSession(this._client, this.username, project);
 
-    return this.cloudsession;
+    this.cloudsessions.push(cloudsession);
+    
+    return cloudsession;
   }
 
   getBackpack() {
